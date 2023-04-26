@@ -175,10 +175,10 @@ public class GenerateBill extends JFrame implements ActionListener {
              billinfo.add(Chunk.NEWLINE);
              billinfo.add(new Phrase("    Units Consumed : " + rs.getString("units")));
              billinfo.add(Chunk.NEWLINE);
+                billinfo.add(new Phrase("    Total Charges : " + rs.getString("totalbill")));
+             billinfo.add(Chunk.NEWLINE);
               billinfo.add(new LineSeparator());
              document.add(billinfo);
-             billinfo.add(new Phrase("    Current Month : " + rs.getString("totalbill")));
-             billinfo.add(Chunk.NEWLINE);
              billinfo.add(new Phrase("    Total Payable  : " + rs.getString("totalbill")));
              billinfo.add(Chunk.NEWLINE);
              area.append("\n");
