@@ -115,38 +115,50 @@ public class NewCustomer extends JFrame implements ActionListener {
               setVisible(true);
             }
     
-             public void actionPerformed(ActionEvent ae){
-                 if (ae.getSource() == next){
-                     String name = tfname.getText();
-                     String meter = lbmeter.getText();
-                     String address = tfaddress.getText();
-                     String city = tfcity.getText();
-                     String state = tfstate.getText();
-                     String email = tfemail.getText();
-                     String phone = tfphone.getText();
-                     
-                     String query1 = "insert into customer values('"+name+"', '"+meter+"', '"+address+"', '"+city+"', '"+state+"', '"+email+"', '"+phone+"')";
-                     String query2 = "insert into login values('"+meter+"', '', '"+name+"','','')";
-                     
-                     try{
-                        Conn c = new Conn();
-                        c.s.executeUpdate(query1);
-                        c.s.executeUpdate(query2);
-                        
-                        JOptionPane.showMessageDialog(null, "Customer Details Added Successfully");
-                        setVisible(false);
-                        
-                        //new frame
-                         new MeterInfo(meter);
-                        
-                     } catch(Exception e){
-                         e.printStackTrace();
-                     }
-                 }
-                 else{
-                     setVisible(false);
-                 }
-             }  
+            public void actionPerformed(ActionEvent ae) {
+    if (ae.getSource() == next) {
+        String name = tfname.getText();
+        String meter = lbmeter.getText();
+        String address = tfaddress.getText();
+        String city = tfcity.getText();
+        String state = tfstate.getText();
+        String email = tfemail.getText();
+        String phone = tfphone.getText();
+
+        // Validation for email
+        if (email.length() > 50 || !email.contains("@") || !email.contains(".")) {
+            JOptionPane.showMessageDialog(null, "Invalid email address");
+            return;
+        }
+
+        // Validation for phone number
+        if (phone.length() != 10 || !phone.matches("\\d+")) {
+            JOptionPane.showMessageDialog(null, "Invalid phone number");
+            return;
+        }
+
+        String query1 = "insert into customer values('" + name + "', '" + meter + "', '" + address + "', '" + city + "', '" + state + "', '" + email + "', '" + phone + "')";
+        String query2 = "insert into login values('" + meter + "', '', '" + name + "','','')";
+
+        try {
+            Conn c = new Conn();
+            c.s.executeUpdate(query1);
+            c.s.executeUpdate(query2);
+
+            JOptionPane.showMessageDialog(null, "Customer Details Added Successfully");
+            setVisible(false);
+
+            // new frame
+            new MeterInfo(meter);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } else {
+        setVisible(false);
+    }
+}
+
     
     public static void main (String[] args){
         new NewCustomer();
