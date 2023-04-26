@@ -70,44 +70,52 @@ public class Login extends JFrame implements ActionListener{
         
         
     }
-    public void actionPerformed(ActionEvent ae){
-        if(ae.getSource()==login){
-            String susername = username.getText();
-            String spassword = password.getText();
-            String user = loggin.getSelectedItem();
+public void actionPerformed(ActionEvent ae){
+    if(ae.getSource()==login){
+        String susername = username.getText();
+        String spassword = password.getText();
+        
+        // Not null validation
+        if(susername.equals("") || spassword.equals("")){
+            JOptionPane.showMessageDialog(null, "Please enter username and password");
+            return;
+        }
+        
+        String user = loggin.getSelectedItem();
+        
+        try {
+            Conn c = new Conn();
+            String query = " Select * from login where username = '"+susername+"' and password = '"+spassword+"' and user = '"+user+"'";
             
-            try {
-                Conn c = new Conn();
-                String query = " Select * from login where username = '"+susername+"' and password = '"+spassword+"' and user = '"+user+"'";
-                
-              ResultSet rs = c.s.executeQuery(query);
-              
-              if (rs.next()){
-                  String meter = rs .getString("meter_no");
-                  setVisible(false);
-                  new Project(user, meter);
-              }             
-              else{
-                  JOptionPane.showMessageDialog(null, "Invalid login");
-                  username.setText(" ");//to empty the text field
-                  password.setText(" ");//to empty the text field
-              }
-                
-            } catch (Exception e) {
-                e.printStackTrace();
+            ResultSet rs = c.s.executeQuery(query);
+            
+            if (rs.next()){
+                String meter = rs .getString("meter_no");
+                setVisible(false);
+                new Project(user, meter);
+            }             
+            else{
+                JOptionPane.showMessageDialog(null, "Invalid login");
+                username.setText(" ");//to empty the text field
+                password.setText(" ");//to empty the text field
             }
             
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        else if(ae.getSource()==cancel){
-            setVisible(false);
-            
-        }
-        else if(ae.getSource()==signup){
-            setVisible(false);
-            new Signup();
-            
-        }
+        
     }
+    else if(ae.getSource()==cancel){
+        setVisible(false);
+        
+    }
+    else if(ae.getSource()==signup){
+        setVisible(false);
+        new Signup();
+        
+    }
+}
+
     
     public static void main(String[]args){
         new Login();
