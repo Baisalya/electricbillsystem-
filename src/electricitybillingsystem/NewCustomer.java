@@ -137,7 +137,7 @@ public class NewCustomer extends JFrame implements ActionListener {
             return;
         }
 
-        String query1 = "insert into customer values('" + name + "', '" + meter + "', '" + address + "', '" + city + "', '" + state + "', '" + email + "', '" + phone + "')";
+        String query1 = "INSERT INTO customer (name, meter_no, address, city, state, email, phone, date) VALUES ('" + name + "', '" + meter + "', '" + address + "', '" + city + "', '" + state + "', '" + email + "', '" + phone + "', NOW())";
         String query2 = "insert into login values('" + meter + "', '', '" + name + "','','')";
 
         try {
