@@ -167,24 +167,40 @@ public class GenerateBill extends JFrame implements ActionListener {
              area.append("\n");
              
          }  
-                rs = c.s.executeQuery("select * from bill where meter_no = '"+meter+"' and month = '"+month+"'");
-         
-         if(rs.next()){
-              Paragraph billinfo = new Paragraph();
+         rs = c.s.executeQuery("select * from bill where meter_no = '"+meter+"' and month = '"+month+"'");
+         Paragraph billinfo = new Paragraph();
+         while(rs.next()){
+                 int penalty = rs.getInt("penalty");
+                 Date dueDate = rs.getDate("duedate");
+                Date currentDate = new Date(System.currentTimeMillis());
+                String status = rs.getString("status");
              billinfo.add(new Phrase("    Current Month : " + rs.getString("month")));
              billinfo.add(Chunk.NEWLINE);
              billinfo.add(new Phrase("    Units Consumed : " + rs.getString("units")));
              billinfo.add(Chunk.NEWLINE);
-                billinfo.add(new Phrase("    Total Charges : " + rs.getString("totalbill")));
-             billinfo.add(Chunk.NEWLINE);
-              billinfo.add(new LineSeparator());
+                 if(currentDate.after(dueDate)){
+                  billinfo.add(new Phrase("    Penalty : " + (penalty + 15)));
+                       }
+                     else{
+                         billinfo.add(new Phrase("    Penalty : " + penalty));
+                     }
+                   billinfo.add(Chunk.NEWLINE);
+                   billinfo.add(new LineSeparator());
+                   billinfo.add(new Phrase("    Total Charges : " + rs.getString("totalbill")));
+                   billinfo.add(Chunk.NEWLINE);
+             
              document.add(billinfo);
              billinfo.add(new Phrase("    Total Payable  : " + rs.getString("totalbill")));
              billinfo.add(Chunk.NEWLINE);
              area.append("\n");
              area.append("\n    Current Month         : " + rs.getString("month"));
              area.append("\n    Units Consumed     : " + rs.getString("units"));
-             area.append("\n    Total Charges         : " + rs.getString("totalbill"));
+              if(currentDate.after(dueDate)){
+                  area.append("\n    Total Payable         : " + (penalty + 15));
+              }
+                  else{
+                  area.append("\n    penalty         : " + penalty);
+              }
              area.append("\n---------------------------------------------------");
              area.append("\n    Total Payable         : " + rs.getString("totalbill"));
              area.append("\n");

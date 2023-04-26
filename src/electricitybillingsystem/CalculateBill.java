@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class CalculateBill extends JFrame implements ActionListener {
    
@@ -153,6 +155,13 @@ public class CalculateBill extends JFrame implements ActionListener {
                      String meter = meternumber.getSelectedItem();
                      String units = tfunits.getText();
                      String month = cmonth.getSelectedItem();
+                     // Get the current date and add 5 days
+                    LocalDate currentDate = LocalDate.now();
+                   LocalDate dateAfterFiveDays = currentDate.plusDays(5);
+
+                  // Format the date as a string using the MySQL date format
+                  DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                   String formattedDate = dateAfterFiveDays.format(formatter);
 
                      int totalbill = 0;  
                      int unit_consumed = Integer.parseInt(units);
@@ -174,8 +183,9 @@ public class CalculateBill extends JFrame implements ActionListener {
                          e.printStackTrace();
                      }
                      
-                     String query2 = "INSERT INTO bill (meter_no, month, units, totalbill, penalty, status)"
-                                      + " VALUES ('"+meter+"', '"+month+"', '"+units+"', '"+totalbill+"', '0', 'Not Paid')";
+                     String query2 = "INSERT INTO bill (meter_no, month, units, totalbill, penalty, status, billdate, duedate) " +
+                "VALUES ('" + meter + "', '" + month + "', '" + units + "', '" + totalbill + "', '0', 'Not Paid', NOW(), '" + formattedDate + "')";
+
                      
                      try{
                          Conn c = new Conn();

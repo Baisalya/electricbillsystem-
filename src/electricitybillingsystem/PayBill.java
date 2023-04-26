@@ -65,41 +65,74 @@ public class PayBill extends JFrame implements ActionListener{
         labelunits.setBounds(300,260,200,20);
         add(labelunits);
         
+        JLabel lbpenalty = new JLabel("Penalty");
+        lbpenalty.setBounds(35,320,200,20);
+        add(lbpenalty);
+        
+        JLabel labelpenalty = new JLabel("");
+        labelpenalty.setBounds(300,320,200,20);
+        add(labelpenalty);
         
         JLabel lbtotalbill = new JLabel("Total Bill");
-        lbtotalbill.setBounds(35,320,200,20);
+        lbtotalbill.setBounds(35,380,200,20);
         add(lbtotalbill);
         
         JLabel labeltotalbill = new JLabel("");
-        labeltotalbill.setBounds(300,320,200,20);
+        labeltotalbill.setBounds(300,380,200,20);
         add(labeltotalbill);
         
         JLabel lbstatus = new JLabel("Status");
-        lbstatus.setBounds(35,380,200,20);
+        lbstatus.setBounds(35,420,200,20);
         add(lbstatus);
         
         JLabel labelstatus = new JLabel("");
-        labelstatus.setBounds(300,380,200,20);
+        labelstatus.setBounds(300,420,200,20);
         labelstatus.setForeground(Color.RED);               
         add(labelstatus);
         
-        try {
-            Conn c = new Conn();
-            ResultSet rs = c.s.executeQuery("select * from customer where meter_no = '"+meter+"'");
-            while(rs.next()){
-            meternumber.setText(meter);
-            labelname.setText(rs.getString("name"));
-            }
-            
-            rs = c.s.executeQuery("select * from bill where meter_no = '"+meter+"' and month = 'january'");
-            while(rs.next()){
+           try {
+                 Conn c = new Conn();
+                   ResultSet rs = c.s.executeQuery("SELECT * FROM customer WHERE meter_no = '"+meter+"'");
+                  while(rs.next()){
+                  meternumber.setText(meter);
+                  labelname.setText(rs.getString("name"));
+               }
+    
+                  rs = c.s.executeQuery("SELECT * FROM bill WHERE meter_no = '"+meter+"' AND month = 'january'");
+                 while(rs.next()){
+                  String status = rs.getString("status");
+                  Date dueDate = rs.getDate("paymentdate");
+                  Date currentDate = new Date(System.currentTimeMillis());
+
+        
+                   // If the status is unpaid and the current date is greater than the due date
+                    if(status.equals("Not Paid") && currentDate.after(dueDate)){
+                      int penalty = rs.getInt("penalty");
+                    if(penalty == 0){ // Only update the penalty once
+                         penalty = 15;
+                          int totalBill = rs.getInt("totalbill");
+                           totalBill += penalty;
+                
+                         // Update the penalty and totalbill columns in the bill table
+                        String query = "UPDATE bill SET penalty = "+penalty+", totalbill = "+totalBill+" WHERE meter_no = '"+meter+"' AND month = 'january'";
+                          c.s.executeUpdate(query);
+                
+                          // Update the UI
+                          labelpenalty.setText(Integer.toString(penalty));
+                          labeltotalbill.setText(Integer.toString(totalBill));
+                     }
+                  }
+                  else{
             labelunits.setText(rs.getString("units"));
             labeltotalbill.setText(rs.getString("totalbill"));
-            labelstatus.setText(rs.getString("status"));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
+            labelstatus.setText(status);
+            labelpenalty.setText(rs.getString("penalty"));
         }
+    }
+}catch(Exception e){
+    e.printStackTrace();
+}
+
         
         cmonth.addItemListener(new ItemListener(){
             @Override
