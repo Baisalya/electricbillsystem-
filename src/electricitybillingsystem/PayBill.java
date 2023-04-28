@@ -23,6 +23,7 @@ public class PayBill extends JFrame implements ActionListener{
     JButton pay,back;
     String meter;
     int totalBill;
+    String status;
     PayBill(String meter){
         this.meter = meter;
         setLayout(null);
@@ -112,7 +113,7 @@ public class PayBill extends JFrame implements ActionListener{
     
                   rs = c.s.executeQuery("SELECT * FROM bill WHERE meter_no = '"+meter+"' AND month = 'january'");
                  while(rs.next()){
-                  String status = rs.getString("status");
+                   status = rs.getString("status");
                   Date dueDate = rs.getDate("paymentdate");
                   Date currentDate = new Date(System.currentTimeMillis());
 
@@ -168,6 +169,10 @@ public class PayBill extends JFrame implements ActionListener{
         pay.setBackground(Color.BLACK);
         pay.setForeground(Color.WHITE);
         pay.setBounds(100, 460, 100, 25);
+        // check the status of the bill
+// check the status of the bill
+
+     System.out.println(status);
         pay.addActionListener(this);
         add(pay); 
         
@@ -231,6 +236,7 @@ public class PayBill extends JFrame implements ActionListener{
     QRCodePanel panel = new QRCodePanel(qrCodeImage);
     frame.setContentPane(panel);
     frame.setVisible(true);
+     dispose();
       try{
                Conn c = new Conn();
                c.s.executeUpdate("Update bill set status = 'Paid',paymentdate=NOW() where meter_no = '"+meter+"' and month = '"+cmonth.getSelectedItem()+"'");
