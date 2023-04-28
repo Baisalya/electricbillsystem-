@@ -1,9 +1,20 @@
 package electricitybillingsystem;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import javax.imageio.ImageIO;
 
 
 public class PayBill extends JFrame implements ActionListener{
@@ -11,6 +22,7 @@ public class PayBill extends JFrame implements ActionListener{
     Choice cmonth;
     JButton pay,back;
     String meter;
+    int totalBill;
     PayBill(String meter){
         this.meter = meter;
         setLayout(null);
@@ -110,7 +122,7 @@ public class PayBill extends JFrame implements ActionListener{
                       int penalty = rs.getInt("penalty");
                     if(penalty == 0){ // Only update the penalty once
                          penalty = 15;
-                          int totalBill = rs.getInt("totalbill");
+                           totalBill = rs.getInt("totalbill");
                            totalBill += penalty;
                 
                          // Update the penalty and totalbill columns in the bill table
@@ -179,23 +191,56 @@ public class PayBill extends JFrame implements ActionListener{
         
     }
     
-    public void actionPerformed(ActionEvent ae){
-        if (ae.getSource() == pay){
-            
-            try{
+   public void actionPerformed(ActionEvent ae) {
+    //int totalBill = 10;
+     if (ae.getSource() == pay){
+    String qrCodeText = "Total Bill: " + totalBill + " rupees";
+    int size = 250;
+    String fileType = "png";
+    File qrFile = new File("qrcode.png");
+    try {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeText, BarcodeFormat.QR_CODE, size, size, hints);
+        int width = bitMatrix.getWidth();
+        BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < width; y++) {
+                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+            }
+        }
+        ImageIO.write(image, fileType, qrFile);
+    } catch (WriterException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    
+    BufferedImage qrCodeImage = null;
+    try {
+        qrCodeImage = ImageIO.read(qrFile);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    
+    JFrame frame = new JFrame();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(size, size);
+    frame.setLocationRelativeTo(null);
+    QRCodePanel panel = new QRCodePanel(qrCodeImage);
+    frame.setContentPane(panel);
+    frame.setVisible(true);
+      try{
                Conn c = new Conn();
-               c.s.executeUpdate("Update bill set status = 'Paid' where meter_no = '"+meter+"' and month = '"+cmonth.getSelectedItem()+"'");
+               c.s.executeUpdate("Update bill set status = 'Paid',paymentdate=NOW() where meter_no = '"+meter+"' and month = '"+cmonth.getSelectedItem()+"'");
             }catch(Exception e)
             {       
               e.printStackTrace();
             }
-        setVisible(false);
-        new Paytm(meter);
-        }
-        else {
-            setVisible(false);
-        }
-    }
+     }
+}
+
 
 public static void main(String[] args)
 {

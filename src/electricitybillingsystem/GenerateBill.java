@@ -172,6 +172,7 @@ public class GenerateBill extends JFrame implements ActionListener {
          while(rs.next()){
                  int penalty = rs.getInt("penalty");
                  Date dueDate = rs.getDate("duedate");
+              
                 Date currentDate = new Date(System.currentTimeMillis());
                 String status = rs.getString("status");
              billinfo.add(new Phrase("    Current Month : " + rs.getString("month")));
